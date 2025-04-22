@@ -1,3 +1,5 @@
+# Recount
+
 ## Install requirements
 pip install -r requirements.txt
 
@@ -9,4 +11,8 @@ uvicorn app.main:app --reload
 
 ## Check API usage
 http://localhost:8000/docs
-http://localhost:8000/redocs# recount
+
+http://localhost:8000/redocs
+
+## Create tables
+scripts/schema.sql
