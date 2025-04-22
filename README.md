@@ -9,4 +9,4 @@ uvicorn app.main:app --reload
 
 ## Check API usage
 http://localhost:8000/docs
-http://localhost:8000/redocs
+http://localhost:8000/redocs# recount
