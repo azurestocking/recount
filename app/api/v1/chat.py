@@ -19,7 +19,8 @@ async def chat(
         logger.info(f"Processing chat message for user {request.user_id}")
         response = await agent.process_message(
             user_id=request.user_id,
-            message=request.message
+            message=request.message,
+            conversation_id=request.conversation_id
         )
         logger.info(f"Successfully processed message for user {request.user_id}")
         return response

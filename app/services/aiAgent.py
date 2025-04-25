@@ -5,7 +5,7 @@ from app.models.database import Base, Conversation, Message, TimelineEvent, Evid
 from app.models.schemas import MessageRequest, ChatResponse
 from datetime import datetime
 import json
-from typing import List
+from typing import List, Optional
 
 class AIAgent:
     def __init__(self, db_url: str):
@@ -13,11 +13,19 @@ class AIAgent:
         SessionLocal = sessionmaker(bind=engine)
         self.db = SessionLocal()
 
-    async def process_message(self, user_id: str, message: str) -> ChatResponse:
+    async def process_message(self, user_id: str, message: str, conversation_id: Optional[str] = None) -> ChatResponse:
         """Main method to process incoming messages"""
         try:
             # 1. Create or get existing conversation
-            conversation = self._get_or_create_conversation(user_id)
+            if conversation_id:
+                # Try to get the specified conversation
+                conversation = self.db.query(Conversation).filter(Conversation.id == conversation_id).first()
+                if not conversation:
+                    # If conversation doesn't exist, create a new one
+                    conversation = self._get_or_create_conversation(user_id)
+            else:
+                # No conversation_id provided, create or get existing one
+                conversation = self._get_or_create_conversation(user_id)
 
             # 2. Store user message
             user_message = self._store_message(
@@ -205,4 +213,31 @@ class AIAgent:
             
         except Exception as e:
             self.db.rollback()
+            raise
+
+    def get_timeline_events(self, conversation_id: str) -> List[dict]:
+        """Get timeline events for a conversation"""
+        try:
+            # Query timeline events for the conversation
+            events = (
+                self.db.query(TimelineEvent)
+                .filter(TimelineEvent.conversation_id == conversation_id)
+                .order_by(TimelineEvent.event_date.asc())
+                .all()
+            )
+            
+            # Format events for response
+            return [
+                {
+                    "time": event.event_date.isoformat(),
+                    "title": event.description,
+                    "description": event.description,
+                    "confidence": event.confidence_score
+                }
+                for event in events
+            ]
+            
+        except Exception as e:
+            self.db.rollback()
+            print(f"Error getting timeline events: {str(e)}")
             raise

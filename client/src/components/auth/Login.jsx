@@ -1,23 +1,82 @@
-import React from 'react';
-import { Button, Card, TextInput } from 'flowbite-react';
+import React, { useState } from 'react';
+import { Button, Card, TextInput, Alert } from 'flowbite-react';
+import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCredentials(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    
+    try {
+      const response = await authAPI.login(credentials);
+      login(response.data.user, response.data.token);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestLogin = () => {
+    // For demo purposes, create a guest user
+    const guestUser = {
+      id: 'guest-' + Date.now(),
+      name: 'Guest User',
+      role: 'guest'
+    };
+    login(guestUser);
+    // Directly navigate to dashboard
+    navigate('/dashboard');
+  };
+
   return (
-    <Card className="max-w-sm mx-auto">
+    <Card className="max-w-sm mx-auto mt-10">
       <h5 className="text-2xl font-bold text-center mb-4">Welcome to Recount</h5>
-      <div className="space-y-4">
+      {error && (
+        <Alert color="failure" className="mb-4">
+          {error}
+        </Alert>
+      )}
+      <form onSubmit={handleLogin} className="space-y-4">
         <TextInput
           type="email"
+          name="email"
           placeholder="Email"
+          value={credentials.email}
+          onChange={handleChange}
           required
         />
         <TextInput
           type="password"
+          name="password"
           placeholder="Password"
+          value={credentials.password}
+          onChange={handleChange}
           required
         />
-        <Button className="w-full">
-          Log In
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Logging in...' : 'Log In'}
         </Button>
         <div className="text-center">
           <span className="text-sm text-gray-500">or</span>
@@ -33,10 +92,10 @@ const Login = () => {
             Facebook
           </Button>
         </div>
-        <Button color="light" className="w-full">
+        <Button color="light" className="w-full" onClick={handleGuestLogin}>
           Continue as guest
         </Button>
-      </div>
+      </form>
     </Card>
   );
 };
