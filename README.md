@@ -1,4 +1,43 @@
-# Recount
+# Recount - Legal Assistant AI Agent
+
+## Project Structure
+
+```
+├── client/                 # Frontend React application
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── features/      # Feature-specific components and logic
+│   │   ├── layouts/       # Layout components
+│   │   ├── pages/        # Page components
+│   │   ├── services/     # API and external services
+│   │   ├── store/        # State management
+│   │   ├── styles/       # Global styles and theme
+│   │   └── utils/        # Utility functions and helpers
+│   └── public/           # Static assets
+│
+└── server/               # Backend application
+    ├── src/
+    │   ├── controllers/  # Request handlers
+    │   ├── models/       # Data models
+    │   ├── routes/       # API routes
+    │   ├── services/     # Business logic
+    │   └── utils/        # Utility functions
+    └── config/          # Configuration files
+```
+
+## Features
+- User Authentication
+- Document Management
+- AI Chat Interface
+- Timeline Tracking
+- Resource Center
+- Voice Interface
+
+## Tech Stack
+- Frontend: React, TailwindCSS, Flowbite
+- Backend: Node.js
+- Authentication: Social and Email
+- AI Integration: Custom AI Agent
 
 ## Backend Setup
 

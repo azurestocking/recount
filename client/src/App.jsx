@@ -1,23 +1,38 @@
-import { Button, Card } from 'flowbite-react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import LandingPage from './pages/LandingPage';
+import Dashboard from './pages/Dashboard';
+import Login from './components/auth/Login';
+import Timeline from './components/timeline/Timeline';
+import ResourceList from './components/resources/ResourceList';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold text-center mb-4">
-        Welcome to Recount
-      </h1>
-      <div className="max-w-sm mx-auto">
-        <Card>
-          <h5 className="text-2xl font-bold tracking-tight text-gray-900">
-            Flowbite Card
-          </h5>
-          <p className="font-normal text-gray-700">
-            This is a Flowbite card component with a button.
-          </p>
-          <Button>Flowbite Button</Button>
-        </Card>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected routes with MainLayout */}
+        <Route path="/dashboard" element={
+          <MainLayout>
+            <Dashboard />
+          </MainLayout>
+        } />
+        <Route path="/timeline" element={
+          <MainLayout>
+            <Timeline />
+          </MainLayout>
+        } />
+        <Route path="/resources" element={
+          <MainLayout>
+            <ResourceList />
+          </MainLayout>
+        } />
+      </Routes>
+    </Router>
   );
 }
 
