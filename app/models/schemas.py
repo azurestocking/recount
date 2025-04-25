@@ -19,6 +19,6 @@ class TimelineEvent(BaseModel):
 
 class ChatResponse(BaseModel):
     message: str
-    conversation_id: str
+    conversation_id: Optional[str] = None
     events: Optional[List[TimelineEvent]] = None
     evidence: Optional[List[dict]] = None

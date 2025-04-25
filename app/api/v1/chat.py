@@ -16,12 +16,18 @@ async def chat(
     Process a chat message with the AI agent
     """
     try:
+        role = "user"
+        if request.user_id.startswith('guest-'):
+            role = "guest"
+
         logger.info(f"Processing chat message for user {request.user_id}")
         response = await agent.process_message(
             user_id=request.user_id,
             message=request.message,
+            role=role,
             conversation_id=request.conversation_id
         )
+        
         logger.info(f"Successfully processed message for user {request.user_id}")
         return response
     except Exception as e:

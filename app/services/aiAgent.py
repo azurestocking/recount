@@ -6,6 +6,9 @@ from app.models.schemas import MessageRequest, ChatResponse
 from datetime import datetime
 import json
 from typing import List, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AIAgent:
     def __init__(self, db_url: str):
@@ -13,49 +16,58 @@ class AIAgent:
         SessionLocal = sessionmaker(bind=engine)
         self.db = SessionLocal()
 
-    async def process_message(self, user_id: str, message: str, conversation_id: Optional[str] = None) -> ChatResponse:
+    async def process_message(self, user_id: str, message: str, role: str, conversation_id: Optional[str] = None) -> ChatResponse:
         """Main method to process incoming messages"""
         try:
-            # 1. Create or get existing conversation
-            if conversation_id:
-                # Try to get the specified conversation
-                conversation = self.db.query(Conversation).filter(Conversation.id == conversation_id).first()
-                if not conversation:
-                    # If conversation doesn't exist, create a new one
+            conversation = None
+            
+            logger.info(f"Processing message for user {user_id} with role {role} and conversation_id {conversation_id}")
+            if role == "user":
+                # 1. Create or get existing conversation
+                if conversation_id:
+                    # Try to get the specified conversation
+                    conversation = self.db.query(Conversation).filter(Conversation.id == conversation_id).first()
+                    if not conversation:
+                        # If conversation doesn't exist, create a new one
+                        conversation = self._get_or_create_conversation(user_id)
+                else:
+                    # No conversation_id provided, create or get existing one
                     conversation = self._get_or_create_conversation(user_id)
-            else:
-                # No conversation_id provided, create or get existing one
-                conversation = self._get_or_create_conversation(user_id)
 
-            # 2. Store user message
-            user_message = self._store_message(
-                conversation_id=conversation.id,
-                role="user",
-                content=message
-            )
+                # 2. Store user message
+                logger.info(f"Storing user message: {message}")
+                user_message = self._store_message(
+                    conversation_id=conversation.id,
+                    role=role,
+                    content=message
+                )
 
             # 3. Process with AI
+            logger.info(f"Processing message with AI")
             ai_response = await self._generate_ai_response(message)
+            logger.info(f"Finished processing message with AI")
 
-            # 4. Store AI response
-            ai_message = self._store_message(
-                conversation_id=conversation.id,
-                role="assistant",
-                content=ai_response["response"],
-                tokens_used=ai_response["tokens"]
-            )
+            if role == "user":
+                # 4. Store AI response
+                logger.info(f"Storing AI response: {ai_response}")
+                ai_message = self._store_message(
+                    conversation_id=conversation.id,
+                    role="assistant",
+                    content=ai_response["response"],
+                    tokens_used=ai_response["tokens"]
+                )
 
-            # 5. Process and store any extracted information
-            self._process_extracted_info(
-                conversation=conversation,
-                ai_response=ai_response,
-                source_message=ai_message
-            )
+                # 5. Process and store any extracted information
+                self._process_extracted_info(
+                    conversation=conversation,
+                    ai_response=ai_response,
+                    source_message=ai_message
+                )
 
-            self.db.commit()
+                self.db.commit()
 
             return ChatResponse(
-                conversation_id=conversation.id,
+                conversation_id=conversation.id if conversation else None,
                 message=ai_response["response"],
                 events=ai_response.get("events", []),
                 evidence=ai_response.get("evidence", [])

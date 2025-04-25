@@ -39,10 +39,10 @@ logger.info("CORS middleware added successfully")
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     logger.info(f"Incoming request: {request.method} {request.url}")
-    logger.info(f"Request headers: {request.headers}")
+    # logger.info(f"Request headers: {request.headers}")
     response = await call_next(request)
     logger.info(f"Response status: {response.status_code}")
-    logger.info(f"Response headers: {response.headers}")
+    # logger.info(f"Response headers: {response.headers}")
     return response
 
 app.include_router(auth.router, prefix="/api/v1/auth")
