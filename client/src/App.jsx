@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './components/auth/Login';
 import Timeline from './components/timeline/Timeline';
 import ResourceList from './components/resources/ResourceList';
+import Signup from './components/auth/Signup';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Protected Route component
@@ -35,6 +36,7 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Protected routes with MainLayout */}
         <Route path="/dashboard" element={

@@ -1,9 +1,14 @@
 -- Users table to store user information
 CREATE TABLE IF NOT EXISTS users (
-    id CHAR(36) PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    id              CHAR(36) PRIMARY KEY,
+    user_name       VARCHAR(255)            NOT NULL,
+    user_account    VARCHAR(255) UNIQUE     NOT NULL,
+    user_password   VARCHAR(255)            NOT NULL,
+    user_role       VARCHAR(255) DEFAULT 'user'            NOT NULL,
+    email           VARCHAR(255) UNIQUE,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted      BOOLEAN DEFAULT FALSE
 );
 
 -- Conversations table to store conversation sessions
