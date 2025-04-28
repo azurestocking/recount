@@ -25,6 +25,19 @@
     └── config/          # Configuration files
 ```
 
+| From | Action/Click | To |
+|--------------------------|-----------------------------|----------------------------------|
+| /login | Login/Signup/Guest | /dashboard |
+| /login | Sign Up Now | /signup |
+| /dashboard | Action card | /dialogue/text or /dialogue/voice|
+| /dashboard | Nav bar | /archive, /resources, /setting |
+| /dialogue/text/voice | Nav bar | /dashboard, /archive, etc. |
+| /archive | Incident card | /archive/incident/:id |
+| /archive/incident/:id | Timeline/Exhibit/Chat card | /archive/incident/:id/timeline, etc. |
+| /archive/incident/:id/* | Back arrow | /archive/incident/:id or /archive|
+| /resources | Resource link | External URL |
+| /setting | Log Out | /login |
+
 ## Features
 - User Authentication
 - Document Management

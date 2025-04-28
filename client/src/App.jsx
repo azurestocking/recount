@@ -8,6 +8,8 @@ import Timeline from './components/timeline/Timeline';
 import ResourceList from './components/resources/ResourceList';
 import Signup from './components/auth/Signup';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import DialogueText from './pages/DialogueText';
+import DialogueVoice from './pages/DialogueVoice';
 
 // Protected Route component
 const ProtectedRoute = ({ children, allowGuest = true }) => {
@@ -46,13 +48,13 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        <Route path="/timeline" element={
+        {/* <Route path="/timeline" element={
           <ProtectedRoute allowGuest={true}>
             <MainLayout>
               <Timeline />
             </MainLayout>
           </ProtectedRoute>
-        } />
+        } /> */}
         <Route path="/resources" element={
           <ProtectedRoute allowGuest={true}>
             <MainLayout>
@@ -60,6 +62,27 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
+        <Route path="/dialogue/text" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <DialogueText />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dialogue/voice" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <DialogueVoice />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+         {/* <Route path="/archive" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <Archive />
+            </MainLayout>
+          </ProtectedRoute>
+        } /> */}
       </Routes>
     </AuthProvider>
   );
