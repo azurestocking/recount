@@ -63,6 +63,11 @@ pip freeze > requirements.txt
 ### Run the backend
 uvicorn app.main:app --reload
 
+### Speech Recognition
+ffmpeg - https://ffmpeg.org/download.html
+
+Download builds
+
 ### Check API usage
 http://localhost:8000/docs
 
