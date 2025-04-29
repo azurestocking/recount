@@ -46,6 +46,12 @@
 - Resource Center
 - Voice Interface
 
+## Development
+- Frontend component
+- Frontend Scaffold
+- Backend Scaffold
+- Backend API implementation
+
 ## Tech Stack
 - Frontend: React, TailwindCSS, Flowbite
 - Backend: Node.js

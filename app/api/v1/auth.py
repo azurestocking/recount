@@ -6,6 +6,19 @@ from app.services.auth_service import register_user, login_user
 from app.database.database import get_db
 from pydantic import BaseModel
 from typing import Optional
+from jose import jwt
+from datetime import datetime, timedelta
+
+SECRET_KEY = "your-secret-key"  # Change this to a secure value!
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 week
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 class UserCreate(BaseModel):
     user_name: str
@@ -25,6 +38,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         user = register_user(db, user_data.model_dump())
         if not user:
             raise HTTPException(status_code=400, detail='User registration failed')
+        token = create_access_token({"sub": user.id})
         return {
             'message': 'User registered successfully',
             'user': {
@@ -33,7 +47,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
                 'user_account': user.user_account,
                 'email': user.email
             },
-            'token': 'dummy-token'  # TODO: Implement proper JWT token generation
+            'token': token
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -44,6 +58,7 @@ async def login(login_data: UserLogin, db: Session = Depends(get_db)):
         user = login_user(db, login_data.user_account, login_data.user_password)
         if not user:
             raise HTTPException(status_code=401, detail='Invalid credentials')
+        token = create_access_token({"sub": user.id})
         return {
             'message': 'Login successful',
             'user': {
@@ -52,7 +67,7 @@ async def login(login_data: UserLogin, db: Session = Depends(get_db)):
                 'user_account': user.user_account,
                 'email': user.email
             },
-            'token': 'dummy-token'  # TODO: Implement proper JWT token generation
+            'token': token
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -10,6 +10,8 @@ import Signup from './components/auth/Signup';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import DialogueText from './pages/DialogueText';
 import DialogueVoice from './pages/DialogueVoice';
+import ArchivePage from './pages/ArchivePage';
+import IncidentPage from './pages/IncidentPage';
 
 // Protected Route component
 const ProtectedRoute = ({ children, allowGuest = true }) => {
@@ -76,13 +78,20 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-         {/* <Route path="/archive" element={
+        <Route path="/archive" element={
           <ProtectedRoute allowGuest={true}>
             <MainLayout>
-              <Archive />
+              <ArchivePage />
             </MainLayout>
           </ProtectedRoute>
-        } /> */}
+        } />
+        <Route path="/archive/incident/:id" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <IncidentPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
       </Routes>
     </AuthProvider>
   );
