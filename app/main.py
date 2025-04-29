@@ -2,14 +2,37 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import auth, chat
+from app.services.aiAgent import AIAgent
 import logging
 from contextlib import asynccontextmanager
+from app.config.config import settings
+from scripts.nltk_setup import ensure_nltk_resources
+from app.services.tools.tool_registry import TOOL_REGISTRY
 
+
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+# )
+# logger = logging.getLogger(__name__)
+
+# 1. 配置 logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.DEBUG,  # DEBUG，保证所有INFO/ERROR都能打出来
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
+logger.info("Adding CORS middleware...")
+
+# --- Initialize Global AI Agent Instance ---
+agent = AIAgent(db_url=settings.DATABASE_URL)
+
+# Inject agent into chat router
+chat.agent = agent
+
+ensure_nltk_resources()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

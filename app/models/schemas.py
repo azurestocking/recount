@@ -22,3 +22,4 @@ class ChatResponse(BaseModel):
     conversation_id: Optional[str] = None
     events: Optional[List[TimelineEvent]] = None
     evidence: Optional[List[dict]] = None
+
