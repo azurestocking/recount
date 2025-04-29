@@ -78,6 +78,7 @@ const DialogueVoice = () => {
       if (data.conversation_id) setConversationId(data.conversation_id);
       
       // Speak the AI response
+      console.log("Speaking text:", data.message || 'AI response here (mock)');
       speakText(data.message || 'AI response here (mock)');
     } catch (error) {
       console.error('Error sending message to AI:', error);
@@ -102,7 +103,7 @@ const DialogueVoice = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // Use a more compatible audio format
+      // Use WebM format with Opus codec
       const options = { 
         mimeType: 'audio/webm;codecs=opus',
         audioBitsPerSecond: 128000
@@ -125,7 +126,7 @@ const DialogueVoice = () => {
       };
       
       mediaRecorderRef.current.onstop = async () => {
-        // Create a blob with the correct MIME type
+        // Create a blob with WebM MIME type
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         await convertSpeechToText(audioBlob);
         
@@ -153,9 +154,8 @@ const DialogueVoice = () => {
       // Create a FormData object to send the audio file
       const formData = new FormData();
       
-      // Use the correct file extension based on the MIME type
-      const fileExtension = audioBlob.type.includes('webm') ? 'webm' : 'wav';
-      formData.append('audio_file', audioBlob, `recording.${fileExtension}`);
+      // Always use WebM format for the file extension
+      formData.append('audio_file', audioBlob, 'recording.webm');
       
       // Send the audio to a speech-to-text API
       const response = await fetch('http://localhost:8000/api/v1/chat/speech-to-text', {

@@ -10,9 +10,15 @@ from pydub import AudioSegment
 import io
 import base64
 import requests
+import subprocess
+import shutil
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# Path to ffmpeg executable
+FFMPEG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 
+                           "temp", "ffmpeg-2025-04-23-git-25b0a8e295-essentials_build", "bin", "ffmpeg.exe")
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(
@@ -44,28 +50,95 @@ async def chat(
 @router.post("/speech-to-text")
 async def speech_to_text(audio_file: UploadFile = File(...)):
     """
-    Convert speech from an audio file to text using Google Cloud Speech-to-Text API
+    Convert speech from an audio file to text
     """
+    input_temp_path = None
+    output_temp_path = None
+    
     try:
         logger.info("Processing speech-to-text conversion")
         
         # Read the uploaded file content
         content = await audio_file.read()
         
-        # For demonstration purposes, we'll use a mock response
-        # In a production environment, you would send this to a speech-to-text API
-        # like Google Cloud Speech-to-Text, Amazon Transcribe, or Microsoft Azure Speech Services
+        # Create temporary files for input and output
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as input_temp_file:
+            input_temp_file.write(content)
+            input_temp_path = input_temp_file.name
+            
+        output_temp_path = input_temp_path.replace(".webm", ".wav")
         
-        # Mock response for testing
-        mock_text = "This is a mock transcription of your speech. In a real implementation, this would be the actual transcribed text."
-        
-        logger.info(f"Successfully converted speech to text: {mock_text}")
-        
-        return {"text": mock_text}
+        try:
+            # Use ffmpeg to convert the audio to WAV format
+            logger.info(f"Converting audio using ffmpeg from {input_temp_path} to {output_temp_path}")
+            logger.info(f"FFMPEG_PATH: {FFMPEG_PATH}")
+            
+            # Check if ffmpeg exists
+            if not os.path.exists(FFMPEG_PATH):
+                logger.error(f"FFmpeg not found at {FFMPEG_PATH}")
+                raise HTTPException(status_code=500, detail="FFmpeg not found")
+            
+            # Run ffmpeg command
+            result = subprocess.run([
+                FFMPEG_PATH,
+                "-i", input_temp_path,
+                "-acodec", "pcm_s16le",
+                "-ar", "16000",
+                "-ac", "1",
+                output_temp_path
+            ], capture_output=True, text=True)
+            
+            if result.returncode != 0:
+                logger.error(f"FFmpeg conversion failed: {result.stderr}")
+                raise HTTPException(status_code=500, detail=f"Audio conversion failed: {result.stderr}")
+            
+            logger.info("Audio conversion successful")
+            
+            # Initialize recognizer
+            recognizer = sr.Recognizer()
+            text = None
+            
+            # Process the converted audio file
+            with sr.AudioFile(output_temp_path) as source:
+                # Adjust for ambient noise to improve recognition
+                recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                audio_data = recognizer.record(source)
+                
+                # Use Google's speech recognition
+                text = recognizer.recognize_google(audio_data)
+                
+                logger.info(f"Successfully converted speech to text: {text}")
+            
+            # Clean up temporary files after the audio file is closed
+            if input_temp_path and os.path.exists(input_temp_path):
+                os.unlink(input_temp_path)
+            if output_temp_path and os.path.exists(output_temp_path):
+                os.unlink(output_temp_path)
+            
+            return {"text": text}
+                
+        except sr.UnknownValueError:
+            logger.error("Speech recognition could not understand audio")
+            raise HTTPException(status_code=400, detail="Could not understand audio")
+        except sr.RequestError as e:
+            logger.error(f"Speech recognition service error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Speech recognition service error: {str(e)}")
+        except Exception as e:
+            logger.error(f"Error processing audio file: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error processing audio file: {str(e)}")
             
     except Exception as e:
         logger.error(f"Error in speech-to-text conversion: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error in speech-to-text conversion: {str(e)}")
+    finally:
+        # Clean up temporary files in case of any errors
+        try:
+            if input_temp_path and os.path.exists(input_temp_path):
+                os.unlink(input_temp_path)
+            if output_temp_path and os.path.exists(output_temp_path):
+                os.unlink(output_temp_path)
+        except Exception as e:
+            logger.error(f"Error cleaning up temporary files: {str(e)}")
 
 @router.get("/conversations/{conversation_id}/history")
 async def get_conversation_history(
