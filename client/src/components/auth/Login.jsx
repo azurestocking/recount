@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Button, Card, TextInput, Alert } from 'flowbite-react';
+import { Button, TextInput, Alert, Label } from 'flowbite-react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
-const Login = () => {
+const Login = ({ onSignupClick }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [credentials, setCredentials] = useState({
-    user_account: '',
+    email: '',
     user_password: '',
   });
   const [error, setError] = useState('');
@@ -28,7 +28,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await authAPI.login(credentials.user_account, credentials.user_password);
+      const response = await authAPI.login(credentials.email, credentials.user_password);
       login(response.data.user, response.data.token);
       navigate('/dashboard');
     } catch (err) {
@@ -39,48 +39,66 @@ const Login = () => {
   };
 
   const handleGuestLogin = () => {
-    // For demo purposes, create a guest user
     const guestUser = {
       id: 'guest-' + Date.now(),
       name: 'Guest User',
       role: 'guest'
     };
     login(guestUser);
-    // Directly navigate to dashboard
     navigate('/dashboard');
   };
 
   return (
-    <Card className="max-w-sm mx-auto mt-10">
-      <h5 className="text-2xl font-bold text-center mb-4">Welcome to Recount</h5>
+    <div>
       {error && (
         <Alert color="failure" className="mb-4">
           {error}
         </Alert>
       )}
-      <form onSubmit={handleLogin} className="space-y-4">
-        <TextInput
-          type="text"
-          name="user_account"
-          placeholder="Account"
-          value={credentials.user_account}
-          onChange={handleChange}
-          required
-        />
-        <TextInput
-          type="password"
-          name="user_password"
-          placeholder="Password"
-          value={credentials.user_password}
-          onChange={handleChange}
-          required
-        />
+      <form onSubmit={handleLogin} className="flex max-w-md flex-col gap-4">
+        <div>
+          <div className="mb-2 block">
+            <Label htmlFor="email" value="Email" />
+          </div>
+          <TextInput
+            id="email"
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={credentials.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <div className="mb-2 block">
+            <Label htmlFor="user_password" value="Password" />
+          </div>
+          <TextInput
+            id="user_password"
+            type="password"
+            name="user_password"
+            placeholder="Password"
+            value={credentials.user_password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? 'Logging in...' : 'Log In'}
         </Button>
-        <div className="text-center">
-          <span className="text-sm text-gray-500">or</span>
+        <Button color="light" className="w-full" onClick={handleGuestLogin}>
+          Continue as Guest
+        </Button>
+
+        {/* Divider */}
+        <div className="flex items-center w-full">
+          <div className="flex-1 border-t border-gray-200"></div>
+          <span className="px-4 text-sm font-normal text-gray-500">OR LOGIN WITH</span>
+          <div className="flex-1 border-t border-gray-200"></div>
         </div>
+
         <div className="flex gap-2">
           <Button color="light" className="w-full">
             Google
@@ -92,11 +110,15 @@ const Login = () => {
             Facebook
           </Button>
         </div>
-        <Button color="light" className="w-full" onClick={handleGuestLogin}>
-          Continue as guest
-        </Button>
+
+        <div className="text-sm font-normal text-center w-full">
+          <span className="text-gray-500">Don't have an account? </span>
+          <button className="text-pink-700 ml-1 hover:underline" onClick={onSignupClick}>
+            Sign Up Now
+          </button>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 };
 

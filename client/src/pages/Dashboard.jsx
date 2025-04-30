@@ -4,13 +4,12 @@ import ChatInterface from '../components/chat/ChatInterface';
 
 const Dashboard = () => {
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-0 my-8">
       <div className="flex flex-col items-center mb-8">
-        {/* Logo */}
-        <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-          <span className="text-white text-2xl font-bold">R</span>
+        <div className="flex flex-col items-center gap-4">
+          <h1 className="leading-tight text-lg font-semibold mb-2">No worries, Jane</h1>
+          <p className="text-gray-500 text-base font-normal text-center">We are here to help you understand your rights and navigate through the stressful situation.</p>
         </div>
-        <h1 className="text-2xl font-bold mb-2">Recount</h1>
       </div>
 
       {/* Main Actions */}
