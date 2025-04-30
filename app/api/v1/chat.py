@@ -16,37 +16,60 @@ import shutil
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
 # Path to ffmpeg executable
 FFMPEG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 
                            "temp", "ffmpeg-2025-04-23-git-25b0a8e295-essentials_build", "bin", "ffmpeg.exe")
 
+
 @router.post("/chat", response_model=ChatResponse)
-async def chat(
-    request: MessageRequest,
-    agent: AIAgent = Depends(get_ai_agent)
+async def chat_with_agent(
+        request: MessageRequest,
+        agent: AIAgent = Depends(get_ai_agent)
 ):
     """
-    Process a chat message with the AI agent
+    Handle incoming user message and generate AI response.
     """
     try:
         role = "user"
-        if request.user_id.startswith('guest-'):
+        if request.user_id.startswith("guest-"):
             role = "guest"
 
-        logger.info(f"Processing chat message for user {request.user_id}")
+        logger.info(f"[Chat] Received message from {request.user_id} with role={role}")
+
         response = await agent.process_message(
             user_id=request.user_id,
             message=request.message,
             role=role,
             conversation_id=request.conversation_id
         )
-        
-        logger.info(f"Successfully processed message for user {request.user_id}")
-        return response
-    except Exception as e:
-        logger.error(f"Error processing message for user {request.user_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
 
+        if response is None:
+            logger.error(f"[Chat] agent.process_message returned None for {request.user_id}")
+            return ChatResponse(
+                message="Agent failed to generate a response.",
+                conversation_id=None,
+                events=[],
+                evidence=[]
+            )
+
+        logger.info(f"[Chat] Successfully processed message for {request.user_id}")
+        return response
+
+    except Exception as e:
+        import traceback
+        logger.error(f"[Chat] Exception: {str(e)}")
+        logger.error(traceback.format_exc())
+
+        return ChatResponse(
+            message=f"Server error: {str(e)}",
+            conversation_id=None,
+            events=[],
+            evidence=[]
+        )
+
+
+# GET /conversations/{conversation_id}/history
 @router.post("/speech-to-text")
 async def speech_to_text(audio_file: UploadFile = File(...)):
     """
@@ -142,51 +165,53 @@ async def speech_to_text(audio_file: UploadFile = File(...)):
 
 @router.get("/conversations/{conversation_id}/history")
 async def get_conversation_history(
-    conversation_id: str,
-    agent: AIAgent = Depends(get_ai_agent)
+        conversation_id: str,
+        agent: AIAgent = Depends(get_ai_agent)
 ):
     """
-    Get the history of a conversation
+    Retrieve conversation history by conversation ID.
     """
     try:
-        logger.info(f"Getting conversation history for {conversation_id}")
+        logger.info(f"[History] Retrieving history for conversation {conversation_id}")
         history = agent.get_conversation_history(conversation_id)
-        logger.info(f"Successfully retrieved history for conversation {conversation_id}")
         return {"history": history}
     except Exception as e:
-        logger.error(f"Error getting conversation history for {conversation_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"[History] Error retrieving history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
+
+# GET /conversations/{conversation_id}/timeline
 @router.get("/conversations/{conversation_id}/timeline")
-async def get_timeline(
-    conversation_id: str,
-    agent: AIAgent = Depends(get_ai_agent)
+async def get_conversation_timeline(
+        conversation_id: str,
+        agent: AIAgent = Depends(get_ai_agent)
 ):
     """
-    Get timeline events for a conversation
+    Retrieve timeline events by conversation ID.
     """
     try:
-        logger.info(f"Getting timeline for conversation {conversation_id}")
+        logger.info(f"[Timeline] Retrieving timeline for conversation {conversation_id}")
         timeline = agent.get_timeline_events(conversation_id)
-        logger.info(f"Successfully retrieved timeline for conversation {conversation_id}")
         return {"timeline": timeline}
     except Exception as e:
-        logger.error(f"Error getting timeline for conversation {conversation_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"[Timeline] Error retrieving timeline: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
+
+# GET /users/{user_id}/conversations
 @router.get("/users/{user_id}/conversations")
 async def get_user_conversations(
-    user_id: str,
-    agent: AIAgent = Depends(get_ai_agent)
+        user_id: str,
+        agent: AIAgent = Depends(get_ai_agent)
 ):
     """
-    Get all conversations for a user
+    Retrieve all conversations for a specific user.
     """
     try:
-        logger.info(f"Getting conversations for user {user_id}")
+        logger.info(f"[UserConversations] Retrieving conversations for user {user_id}")
         conversations = agent.get_user_conversations(user_id)
-        logger.info(f"Successfully retrieved conversations for user {user_id}")
         return {"conversations": conversations}
     except Exception as e:
-        logger.error(f"Error getting conversations for user {user_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"[UserConversations] Error retrieving conversations: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+

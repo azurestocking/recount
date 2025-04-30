@@ -94,12 +94,33 @@ CREATE TABLE IF NOT EXISTS evidence (
     FOREIGN KEY (incident_id) REFERENCES incidents(id)
 );
 
+-- Law table to store references to evidence
+CREATE TABLE IF NOT EXISTS law (
+    id CHAR(36) PRIMARY KEY,
+    conversation_id CHAR(36),
+    type VARCHAR(50) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata JSON,
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id)
+);
+
+-- FAISS Indexes for the evidence embedding database
+CREATE TABLE IF NOT EXISTS faiss_indexes (
+    id CHAR(36) PRIMARY KEY,
+    index_data LONGBLOB NOT NULL
+);
+ALTER TABLE faiss_indexes
+ADD COLUMN id_list JSON NULL;
+
 -- Indexes for better query performance
 CREATE INDEX idx_conversations_user_id ON conversations(user_id);
 CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
 CREATE INDEX idx_affidavits_conversation_id ON affidavits(conversation_id);
 CREATE INDEX idx_timeline_events_conversation_id ON timeline_events(conversation_id);
 CREATE INDEX idx_evidence_conversation_id ON evidence(conversation_id);
+CREATE INDEX idx_faiss_indexes_id ON faiss_indexes(id);
 
 -- Additional indexes for incident relationships
 CREATE INDEX idx_conversations_incident_id ON conversations(incident_id);
