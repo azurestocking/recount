@@ -7,6 +7,22 @@ const TimelineView = ({ incidentId, timeline, setTimeline }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const formatDateTime = (dateStr) => {
+    const date = new Date(dateStr);
+    return {
+      fullDate: date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      time: date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    };
+  };
+
   const handleAdd = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -49,14 +65,35 @@ const TimelineView = ({ incidentId, timeline, setTimeline }) => {
         </button>
       </form>
       {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
-      <div className="space-y-2">
+      
+      {/* Timeline Display */}
+      <div className="relative">
         {timeline.length === 0 && <div className="text-gray-400">No events yet.</div>}
-        {timeline.map(ev => (
-          <div key={ev.id} className="border rounded p-2 bg-gray-50">
-            <div className="text-xs text-gray-500 mb-1">{new Date(ev.event_date).toLocaleString()}</div>
-            <div>{ev.description}</div>
-          </div>
-        ))}
+        
+        {/* Vertical Line */}
+        {timeline.length > 0 && (
+          <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-gray-200" />
+        )}
+
+        {/* Timeline Events */}
+        <div className="space-y-4">
+          {timeline.map(ev => {
+            const { fullDate, time } = formatDateTime(ev.event_date);
+            return (
+              <div key={ev.id} className="relative pl-8">
+                {/* Timeline Dot */}
+                <div className="absolute left-0 w-4 h-4 rounded-full bg-white border-2 border-gray-300" style={{ top: '2px' }} />
+                
+                {/* Event Content */}
+                <div>
+                  <div className="text-sm text-gray-500">{fullDate}</div>
+                  <div className="text-sm text-gray-500">{time}</div>
+                  <div className="text-gray-700 mt-1">{ev.description}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

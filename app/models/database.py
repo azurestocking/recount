@@ -135,7 +135,7 @@ class Evidence(Base):
     type = Column(String)
     file_path = Column(String)
     description = Column(Text)
-    meta_data = Column('metadata', JSON)
+    meta_data = Column('evidence_metadata', JSON)
     created_at = Column(DateTime, default=datetime.now)
     conversation = relationship("Conversation", back_populates="evidences")
     incident = relationship("Incident", back_populates="evidences", foreign_keys=[incident_id])

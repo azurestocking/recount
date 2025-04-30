@@ -8,9 +8,13 @@ class MessageRequest(BaseModel):
     conversation_id: Optional[str] = None
 
 class MessageResponse(BaseModel):
-    conversation_id: str
-    response: str
-    tokens_used: int
+    id: str
+    role: str
+    content: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 class TimelineEvent(BaseModel):
     description: str
@@ -59,10 +63,20 @@ class TimelineEventResponse(BaseModel):
     event_date: datetime
     description: str
     confidence_score: Optional[float] = None
-    created_at: datetime
+    formatted_time: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        if self.event_date:
+            self.formatted_time = self.event_date.strftime("%H:%M %p")
+
+    def dict(self, *args, **kwargs):
+        d = super().dict(*args, **kwargs)
+        d['formatted_time'] = self.formatted_time
+        return d
 
 # Evidence schemas
 class EvidenceResponse(BaseModel):
@@ -75,3 +89,14 @@ class EvidenceResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+# Chat history schemas
+class ConversationResponse(BaseModel):
+    id: str
+    title: str
+    status: str
+    created_at: datetime
+    messages: List[MessageResponse]
+
+    class Config:
+        from_attributes = True

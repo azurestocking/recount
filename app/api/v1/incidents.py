@@ -99,12 +99,42 @@ def add_timeline_event(incident_id: str, event: schemas.TimelineEventCreate, db:
 
 @router.get("/{incident_id}/timeline", response_model=List[schemas.TimelineEventResponse], summary="Get timeline events for an incident")
 def get_timeline_events(incident_id: str, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
+    """
+    Get timeline events for an incident, sorted by event date.
+    Returns events with formatted time (HH:MM AM/PM) and description.
+    """
     # Only allow if user owns the incident
     incident = db.query(IncidentModel).filter(IncidentModel.id == incident_id, IncidentModel.user_id == user_id).first()
+    logger.info(f"Incident: {incident}")
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
-    events = db.query(TimelineEventModel).filter(TimelineEventModel.incident_id == incident_id).order_by(TimelineEventModel.event_date).all()
-    return events
+    
+    try:
+        events = (
+            db.query(TimelineEventModel)
+            .filter(TimelineEventModel.incident_id == incident_id)
+            .order_by(TimelineEventModel.event_date.desc())  # Most recent first
+            .all()
+        )
+        logger.info(f"Events: {events}")
+        # Convert to response models with proper time formatting
+        response_events = []
+        for event in events:
+            try:
+                response_event = schemas.TimelineEventResponse.from_orm(event)
+                response_events.append(response_event)
+            except Exception as e:
+                logger.error(f"Error converting event {event.id}: {str(e)}")
+                continue
+                
+        return response_events
+
+    except Exception as e:
+        logger.error(f"Error fetching timeline events: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error fetching timeline events"
+        )
 
 @router.get("/{incident_id}/evidence", response_model=List[schemas.EvidenceResponse], summary="Get exhibits/evidence for an incident")
 def get_evidence(incident_id: str, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
@@ -171,4 +201,56 @@ def start_conversation(
     return {
         "incident_id": incident_id,
         "conversation_id": conversation.id
-    } 
+    }
+
+@router.delete("/{incident_id}", status_code=204, summary="Delete an incident")
+def delete_incident(incident_id: str, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
+    incident = db.query(IncidentModel).filter(IncidentModel.id == incident_id, IncidentModel.user_id == user_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    db.delete(incident)
+    db.commit()
+    return 
+
+@router.get("/{incident_id}/conversations", response_model=List[schemas.ConversationResponse], summary="Get conversations for an incident")
+def get_incident_conversations(incident_id: str, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
+    """
+    Get all conversations and their messages for an incident.
+    """
+    # Check if incident exists and belongs to user
+    incident = db.query(IncidentModel).filter(
+        IncidentModel.id == incident_id,
+        IncidentModel.user_id == user_id
+    ).first()
+    logger.info(f"/conversation - Incident: {incident}")
+    
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+
+    try:
+        # Get conversations with their messages
+        conversations = (
+            db.query(Conversation)
+            .filter(Conversation.incident_id == incident_id)
+            .order_by(Conversation.created_at.desc())
+            .all()
+        )
+        logger.info(f"/conversation - Conversations: {conversations}")
+
+        # Load messages for each conversation
+        for conv in conversations:
+            conv.messages = (
+                db.query(Message)
+                .filter(Message.conversation_id == conv.id)
+                .order_by(Message.created_at.asc())
+                .all()
+            )
+
+        return conversations
+
+    except Exception as e:
+        logger.error(f"Error fetching conversations: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error fetching conversations"
+        ) 

@@ -111,4 +111,25 @@ export async function getExhibits(incidentId) {
   return res.json();
 }
 
+export async function deleteIncident(id) {
+  const res = await fetch(`${API_URL}/incidents/${id}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to delete incident');
+  return true;
+}
+
+export const getIncidentConversations = async (incidentId) => {
+  const response = await fetch(`${API_URL}/incidents/${incidentId}/conversations`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch conversations');
+  }
+  return response.json();
+};
+
 export default api; 
