@@ -8,8 +8,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [credentials, setCredentials] = useState({
-    email: '',
-    password: '',
+    user_account: '',
+    user_password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,9 +26,9 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
-      const response = await authAPI.login(credentials);
+      const response = await authAPI.login(credentials.user_account, credentials.user_password);
       login(response.data.user, response.data.token);
       navigate('/dashboard');
     } catch (err) {
@@ -60,18 +60,18 @@ const Login = () => {
       )}
       <form onSubmit={handleLogin} className="space-y-4">
         <TextInput
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={credentials.email}
+          type="text"
+          name="user_account"
+          placeholder="Account"
+          value={credentials.user_account}
           onChange={handleChange}
           required
         />
         <TextInput
           type="password"
-          name="password"
+          name="user_password"
           placeholder="Password"
-          value={credentials.password}
+          value={credentials.user_password}
           onChange={handleChange}
           required
         />

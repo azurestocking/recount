@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+const API_URL = 'http://localhost:8000/api/v1';
+
 // Create an axios instance with base URL
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -22,7 +24,7 @@ api.interceptors.request.use(
 
 // Auth API calls
 export const authAPI = {
-  login: (credentials) => api.post('/auth/login', credentials),
+  login: (userAccount, userPassword) => api.post('/auth/login', { user_account: userAccount, user_password: userPassword }),
   register: (userData) => api.post('/auth/register', userData),
 };
 
@@ -36,5 +38,77 @@ export const chatAPI = {
   getUserConversations: (userId) => 
     api.get(`/chat/users/${userId}/conversations`),
 };
+
+// Helper to get auth headers for fetch
+function getAuthHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+// Incident API
+export async function getIncidents() {
+  const res = await fetch(`${API_URL}/incidents`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch incidents');
+  return res.json();
+}
+
+export async function getIncident(id) {
+  const res = await fetch(`${API_URL}/incidents/${id}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch incident');
+  return res.json();
+}
+
+export async function createIncident(data) {
+  const res = await fetch(`${API_URL}/incidents`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to create incident');
+  return res.json();
+}
+
+export async function updateIncident(id, data) {
+  const res = await fetch(`${API_URL}/incidents/${id}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update incident');
+  return res.json();
+}
+
+export async function getTimeline(incidentId) {
+  const res = await fetch(`${API_URL}/incidents/${incidentId}/timeline`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch timeline');
+  return res.json();
+}
+
+export async function addTimelineEvent(incidentId, data) {
+  const res = await fetch(`${API_URL}/incidents/${incidentId}/timeline`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to add timeline event');
+  return res.json();
+}
+
+export async function getExhibits(incidentId) {
+  const res = await fetch(`${API_URL}/incidents/${incidentId}/evidence`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch exhibits');
+  return res.json();
+}
 
 export default api; 

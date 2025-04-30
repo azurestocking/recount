@@ -13,81 +13,87 @@ const MainLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar fluid>
-        <Navbar.Brand as={Link} to="/dashboard">
-          <img
-            src="/logo.svg"
-            className="h-8 mr-3"
-            alt="Recount Logo"
-          />
-          <span className="self-center text-xl font-semibold whitespace-nowrap">
-            Recount
-          </span>
-        </Navbar.Brand>
-        <div className="flex md:order-2 items-center gap-4">
-          {user ? (
-            <div className="flex items-center gap-2">
-              {isGuest() && (
-                <Badge color="info" className="mr-2">
-                  Guest Mode
-                </Badge>
-              )}
-              <Dropdown
-                arrowIcon={false}
-                inline
-                label={
-                  <Avatar 
-                    alt="User" 
-                    img={user.avatar || "https://flowbite.com/docs/images/people/profile-picture-5.jpg"} 
-                    rounded
-                    size="sm"
-                  />
-                }
-              >
-                <Dropdown.Header>
-                  <span className="block text-sm">
-                    {user.name || 'User'}
-                  </span>
-                  <span className="block truncate text-sm font-medium">
-                    {user.email || user.id}
-                  </span>
-                </Dropdown.Header>
-                <Dropdown.Item as={Link} to="/dashboard">
-                  Dashboard
-                </Dropdown.Item>
-                <Dropdown.Item as={Link} to="/timeline">
-                  Timeline
-                </Dropdown.Item>
-                <Dropdown.Item as={Link} to="/resources">
-                  Resources
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item onClick={logout}>
-                  Sign out
-                </Dropdown.Item>
-              </Dropdown>
-            </div>
-          ) : (
-            <Button as={Link} to="/login">
-              Login
-            </Button>
-          )}
-          <Navbar.Toggle />
-        </div>
-        <Navbar.Collapse>
-          <Navbar.Link as={Link} to="/dashboard" active={isActive('/dashboard')}>
-            Dashboard
-          </Navbar.Link>
-          <Navbar.Link as={Link} to="/resources" active={isActive('/resources')}>
-            Resources
-          </Navbar.Link>
-          <Navbar.Link as={Link} to="/timeline" active={isActive('/timeline')}>
-            Timeline
-          </Navbar.Link>
-        </Navbar.Collapse>
-      </Navbar>
+      {/* header */}
+      <div className="fixed top-0 left-0 w-full z-20 bg-white border-b">
+        <Navbar fluid>
+          <Navbar.Brand as={Link} to="/dashboard">
+            <img
+              src="/logo.svg"
+              className="h-8 mr-3"
+              alt="Recount Logo"
+            />
+            <span className="self-center text-xl font-semibold whitespace-nowrap">
+              Recount
+            </span>
+          </Navbar.Brand>
+          <div className="flex md:order-2 items-center gap-4">
+            {user ? (
+              <div className="flex items-center gap-2">
+                {isGuest() && (
+                  <Badge color="info" className="mr-2">
+                    Guest Mode
+                  </Badge>
+                )}
+                <Dropdown
+                  arrowIcon={false}
+                  inline
+                  label={
+                    <Avatar 
+                      alt="User" 
+                      img={user.avatar || "https://flowbite.com/docs/images/people/profile-picture-5.jpg"} 
+                      rounded
+                      size="sm"
+                    />
+                  }
+                >
+                  <Dropdown.Header>
+                    <span className="block text-sm">
+                      {user.name || 'User'}
+                    </span>
+                    <span className="block truncate text-sm font-medium">
+                      {user.email || user.id}
+                    </span>
+                  </Dropdown.Header>
+                  <Dropdown.Item as={Link} to="/dashboard">
+                    Dashboard
+                  </Dropdown.Item>
+                  {/* <Dropdown.Item as={Link} to="/timeline">
+                    Timeline
+                  </Dropdown.Item> */}
+                  <Dropdown.Item as={Link} to="/resources">
+                    Resources
+                  </Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/archive">
+                    Archive
+                  </Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={logout}>
+                    Sign out
+                  </Dropdown.Item>
+                </Dropdown>
+              </div>
+            ) : (
+              <Button as={Link} to="/login">
+                Login
+              </Button>
+            )}
+            <Navbar.Toggle />
+          </div>
+          <Navbar.Collapse>
+            <Navbar.Link as={Link} to="/dashboard" active={isActive('/dashboard')}>
+              Dashboard
+            </Navbar.Link>
+            <Navbar.Link as={Link} to="/resources" active={isActive('/resources')}>
+              Resources
+            </Navbar.Link>
+            <Navbar.Link as={Link} to="/archive" active={isActive('/archive')}>
+              Archive
+            </Navbar.Link>
+          </Navbar.Collapse>
+        </Navbar>
+      </div>
 
-      <main className="container mx-auto py-8">
+      <main className="container mx-auto py-8 pt-20">
         {children}
       </main>
 

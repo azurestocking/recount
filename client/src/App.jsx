@@ -6,7 +6,12 @@ import Dashboard from './pages/Dashboard';
 import Login from './components/auth/Login';
 import Timeline from './components/timeline/Timeline';
 import ResourceList from './components/resources/ResourceList';
+import Signup from './components/auth/Signup';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import DialogueText from './pages/DialogueText';
+import DialogueVoice from './pages/DialogueVoice';
+import ArchivePage from './pages/ArchivePage';
+import IncidentPage from './pages/IncidentPage';
 
 // Protected Route component
 const ProtectedRoute = ({ children, allowGuest = true }) => {
@@ -35,6 +40,7 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Protected routes with MainLayout */}
         <Route path="/dashboard" element={
@@ -44,17 +50,45 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        <Route path="/timeline" element={
+        {/* <Route path="/timeline" element={
           <ProtectedRoute allowGuest={true}>
             <MainLayout>
               <Timeline />
             </MainLayout>
           </ProtectedRoute>
-        } />
+        } /> */}
         <Route path="/resources" element={
           <ProtectedRoute allowGuest={true}>
             <MainLayout>
               <ResourceList />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dialogue/text" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <DialogueText />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dialogue/voice" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <DialogueVoice />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/archive" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <ArchivePage />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/archive/incident/:id" element={
+          <ProtectedRoute allowGuest={true}>
+            <MainLayout>
+              <IncidentPage />
             </MainLayout>
           </ProtectedRoute>
         } />

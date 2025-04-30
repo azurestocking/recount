@@ -18,13 +18,12 @@ const ActionCard = ({ title, onClick }) => (
 const ActionGrid = () => {
   const actions = [
     { title: 'Document an Incident', handler: () => {} },
-    { title: 'Prepare a Police Report', handler: () => {} },
     { title: 'Prepare an Affidavit', handler: () => {} },
-    { title: 'Draft a Demand Letter', handler: () => {} },
+    { title: 'Understand my rights', handler: () => {} },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto p-4">
+    <div className="grid grid-cols-1 md:grid-cols-1 gap-4 max-w-4xl mx-auto p-4">
       {actions.map((action, index) => (
         <ActionCard
           key={index}

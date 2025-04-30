@@ -1,7 +1,7 @@
 # app/main.py
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1 import auth, chat
+from app.api.v1 import auth, chat, incidents
 from app.services.aiAgent import AIAgent
 import logging
 from contextlib import asynccontextmanager
@@ -70,6 +70,7 @@ async def log_requests(request: Request, call_next):
 
 app.include_router(auth.router, prefix="/api/v1/auth")
 app.include_router(chat.router, prefix="/api/v1/chat")
+app.include_router(incidents.router, prefix="/api/v1/incidents")
 
 @app.get("/")
 def root():

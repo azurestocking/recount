@@ -1,21 +1,41 @@
 -- Users table to store user information
 CREATE TABLE IF NOT EXISTS users (
-    id CHAR(36) PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    id              CHAR(36) PRIMARY KEY,
+    user_name       VARCHAR(255)            NOT NULL,
+    user_account    VARCHAR(255) UNIQUE     NOT NULL,
+    user_password   VARCHAR(255)            NOT NULL,
+    user_role       VARCHAR(255) DEFAULT 'user'            NOT NULL,
+    email           VARCHAR(255) UNIQUE,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted      BOOLEAN DEFAULT FALSE
+);
+
+-- Incidents table to store cases/issues
+CREATE TABLE IF NOT EXISTS incidents (
+    id              CHAR(36) PRIMARY KEY,
+    title           VARCHAR(255)            NOT NULL,
+    description     TEXT,
+    status          VARCHAR(50) DEFAULT 'in_progress' NOT NULL,
+    location        VARCHAR(255),
+    user_id         CHAR(36)                NOT NULL,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Conversations table to store conversation sessions
 CREATE TABLE IF NOT EXISTS conversations (
     id CHAR(36) PRIMARY KEY,
     user_id CHAR(36),
+    incident_id CHAR(36),
     status VARCHAR(50) NOT NULL,
     title VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    metadata JSON,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    conversation_metadata JSON,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (incident_id) REFERENCES incidents(id)
 );
 
 -- Messages table to store all messages in conversations
@@ -49,12 +69,14 @@ CREATE TABLE IF NOT EXISTS affidavits (
 CREATE TABLE IF NOT EXISTS timeline_events (
     id CHAR(36) PRIMARY KEY,
     conversation_id CHAR(36),
+    incident_id CHAR(36),
     event_date TIMESTAMP,
     description TEXT NOT NULL,
     confidence_score FLOAT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     source_message_id CHAR(36),
     FOREIGN KEY (conversation_id) REFERENCES conversations(id),
+    FOREIGN KEY (incident_id) REFERENCES incidents(id),
     FOREIGN KEY (source_message_id) REFERENCES messages(id)
 );
 
@@ -62,12 +84,14 @@ CREATE TABLE IF NOT EXISTS timeline_events (
 CREATE TABLE IF NOT EXISTS evidence (
     id CHAR(36) PRIMARY KEY,
     conversation_id CHAR(36),
+    incident_id CHAR(36),
     type VARCHAR(50) NOT NULL,
     file_path VARCHAR(255) NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    metadata JSON,
-    FOREIGN KEY (conversation_id) REFERENCES conversations(id)
+    evidence_metadata JSON,
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id),
+    FOREIGN KEY (incident_id) REFERENCES incidents(id)
 );
 
 -- Law table to store references to evidence
@@ -97,3 +121,8 @@ CREATE INDEX idx_affidavits_conversation_id ON affidavits(conversation_id);
 CREATE INDEX idx_timeline_events_conversation_id ON timeline_events(conversation_id);
 CREATE INDEX idx_evidence_conversation_id ON evidence(conversation_id);
 CREATE INDEX idx_faiss_indexes_id ON faiss_indexes(id);
+
+-- Additional indexes for incident relationships
+CREATE INDEX idx_conversations_incident_id ON conversations(incident_id);
+CREATE INDEX idx_timeline_events_incident_id ON timeline_events(incident_id);
+CREATE INDEX idx_evidence_incident_id ON evidence(incident_id);

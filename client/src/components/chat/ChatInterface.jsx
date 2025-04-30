@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, TextInput, Spinner, Alert } from 'flowbite-react';
 import { chatAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const ChatMessage = ({ message, isUser }) => (
   <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -22,6 +23,7 @@ const ChatInterface = () => {
   const [conversationId, setConversationId] = useState(null);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
   
   // Get user ID from auth context
   const userId = user?.id || 'guest';
@@ -63,48 +65,14 @@ const ChatInterface = () => {
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
-    
-    const newMessage = { text: inputText, isUser: true };
-    setMessages(prev => [...prev, newMessage]);
-    setInputText('');
-    setLoading(true);
-    setError(null);
-    
-    try {
-      console.log("Sending message:", inputText);
-      const response = await chatAPI.sendMessage({
-        user_id: userId,
-        message: inputText,
-        conversation_id: conversationId
-      });
-      
-      // If this is the first message, set the conversation ID
-      if (!conversationId && response.data.conversation_id) {
-        setConversationId(response.data.conversation_id);
-      }
-      
-      // Add AI response to messages
-      if (response.data.message) {
-        setMessages(prev => [...prev, { 
-          text: response.data.message, 
-          isUser: false 
-        }]);
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setError('Failed to send message. Please try again later.');
-      // Add error message
-      setMessages(prev => [...prev, { 
-        text: 'Sorry, there was an error processing your message. Please try again.', 
-        isUser: false 
-      }]);
-    } finally {
-      setLoading(false);
-    }
+    // Navigate to /dialogue/text and pass the message as state
+    navigate('/dialogue/text', { state: { initialMessage: inputText } });
   };
 
   const toggleVoiceRecording = () => {
     setIsRecording(!isRecording);
+    // Navigate to /dialogue/voice
+    navigate('/dialogue/voice');
     // Voice recording logic would go here
   };
 
