@@ -63,12 +63,15 @@ Our AI agent supports survivors of traumatic incidents—especially domestic vio
 ## Backend Setup
 
 Install requirements
+
 ```pip install -r requirements.txt```
 
 Put all the packages into requirements.txt
+
 ```pip freeze > requirements.txt```
 
 Run the backend
+
 ```uvicorn app.main:app --reload```
 
 Speech Recognition
