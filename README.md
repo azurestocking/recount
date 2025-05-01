@@ -1,4 +1,6 @@
-# Recount - Legal Assistant AI Agent
+# Recount
+
+Our AI agent supports survivors of traumatic incidents—especially domestic violence—during the judicial preparation phase by transforming fragmented, emotionally charged memories into structured, legally usable narratives. Through a guided interview process powered by RAG and knowledge graph integration, the agent helps users construct coherent timelines, detect evidentiary gaps, and generate draft affidavits in formal legal language. Designed to reduce narrative burden and prevent re-traumatization, it bridges systemic gaps in early-stage legal engagement.
 
 ## Project Structure
 
@@ -60,37 +62,36 @@
 
 ## Backend Setup
 
-### Install requirements
-pip install -r requirements.txt
+Install requirements
+```pip install -r requirements.txt```
 
-### Put all the packages into requirements.txt
-pip freeze > requirements.txt
+Put all the packages into requirements.txt
+```pip freeze > requirements.txt```
 
-### Run the backend
-uvicorn app.main:app --reload
+Run the backend
+```uvicorn app.main:app --reload```
 
-### Speech Recognition
-ffmpeg - https://ffmpeg.org/download.html
+Speech Recognition
+* ffmpeg - https://ffmpeg.org/download.html
+* Download builds
 
-Download builds
+Check API usage
+* http://localhost:8000/docs
+* http://localhost:8000/redocs
 
-### Check API usage
-http://localhost:8000/docs
-
-http://localhost:8000/redocs
-
-### Create tables
-scripts/schema.sql
+Create tables
+```scripts/schema.sql```
 
 ## Frontend Setup
 
-### Install Node.js dependencies
+Install dependencies
 ```bash
 cd client
 npm install
 ```
 
-### Start the development server
+Run
 ```bash
+cd client
 npm run dev
 ```
