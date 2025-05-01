@@ -118,7 +118,7 @@ const DialogueText = () => {
         {loading && <div className="text-center text-gray-400">AI is typing...</div>}
         <div ref={messagesEndRef} />
       </div>
-      <div className="border-t bg-white flex items-center fixed bottom-16 w-full z-10 p-4 gap-2">
+      <div className="border-t bg-white flex items-center fixed bottom-16 w-full z-10 p-4 gap-2 max-w-lg">
         <TextInput
           type="text"
           placeholder="Ask me anything..."

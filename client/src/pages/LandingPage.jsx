@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { Button, Card } from 'flowbite-react';
-import { Link } from 'react-router-dom';
 import Login from '../components/auth/Login';
 import Signup from '../components/auth/Signup';
 
@@ -16,7 +14,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center py-8">
+    <div className="flex flex-col min-h-screen items-center justify-center py-8 max-w-lg mx-auto">
       <div className="flex flex-col items-center justify-center gap-6 p-8 w-full flex-1">
         {/* Logo */}
         <div className="w-36 h-36 rounded-full flex items-center justify-center">
@@ -25,22 +23,22 @@ const LandingPage = () => {
 
         {/* Welcome Text */}
         <div className="flex flex-col items-center justify-center gap-4 w-full">
-          <h1 className="text-2xl font-bold text-[#111928] text-center font-leading-tight-text-2xl-font-bold">
+          <h1 className="text-2xl font-bold text-center font-leading-tight">
             Recount
           </h1>
-          <p className="text-base text-gray-500 text-center font-text-base-font-normal">
+          <p className="text-base text-gray-500 text-center font-normal">
             Your guide through the justice process—built for survivors, powered by AI.
           </p>
         </div>
       </div>
 
-      <card id="login-container" className="max-w-sm w-full border-0 shadow-none">
+      <div id="login-container" className="px-4 w-full">
         {showSignup ? (
           <Signup onLoginClick={handleLoginClick} />
         ) : (
           <Login onSignupClick={handleSignupClick} />
         )}
-      </card>
+      </div>
 
     </div>
   );

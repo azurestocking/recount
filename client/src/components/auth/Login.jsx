@@ -85,17 +85,20 @@ const Login = ({ onSignupClick }) => {
           />
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Logging in...' : 'Log In'}
-        </Button>
-        <Button color="light" className="w-full" onClick={handleGuestLogin}>
-          Continue as Guest
-        </Button>
+        <div className="flex flex-col gap-2 items-center w-full">
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Logging in...' : 'Log In'}
+          </Button>
+          <Button color="light" className="w-full" onClick={handleGuestLogin}>
+            Continue as Guest
+          </Button>
+        </div>
+
 
         {/* Divider */}
         <div className="flex items-center w-full">
           <div className="flex-1 border-t border-gray-200"></div>
-          <span className="px-4 text-sm font-normal text-gray-500">OR LOGIN WITH</span>
+          <span className="px-2 text-sm font-normal text-gray-500">OR LOGIN WITH</span>
           <div className="flex-1 border-t border-gray-200"></div>
         </div>
 
