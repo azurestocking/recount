@@ -63,16 +63,19 @@ Our AI agent supports survivors of traumatic incidents—especially domestic vio
 ## Backend Setup
 
 Install requirements
-
-```pip install -r requirements.txt```
+```bash
+pip install -r requirements.txt
+```
 
 Put all the packages into requirements.txt
-
-```pip freeze > requirements.txt```
+```bash
+pip freeze > requirements.txt
+```
 
 Run the backend
-
-```uvicorn app.main:app --reload```
+```bash
+uvicorn app.main:app --reload
+```
 
 Speech Recognition
 * ffmpeg - https://ffmpeg.org/download.html
@@ -83,7 +86,9 @@ Check API usage
 * http://localhost:8000/redocs
 
 Create tables
-```scripts/schema.sql```
+```bash
+scripts/schema.sql
+```
 
 ## Frontend Setup
 
