@@ -16,7 +16,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center bg-white py-8">
+    <div className="flex flex-col min-h-screen items-center justify-center py-8">
       <div className="flex flex-col items-center justify-center gap-6 p-8 w-full flex-1">
         {/* Logo */}
         <div className="w-36 h-36 rounded-full flex items-center justify-center">

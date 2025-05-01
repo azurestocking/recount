@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Button } from 'flowbite-react';
+import { Button, TextInput } from 'flowbite-react';
 
 const DialogueText = () => {
   const location = useLocation();
@@ -109,7 +109,7 @@ const DialogueText = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 relative">
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 pt-20 pb-36">
         {messages.map((msg, idx) => (
           <div key={idx} className={`mb-2 flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
             <div className={`rounded-lg px-4 py-2 ${msg.isUser ? 'bg-pink-600 text-white' : 'bg-gray-200'}`}>{msg.text}</div>
@@ -118,11 +118,11 @@ const DialogueText = () => {
         {loading && <div className="text-center text-gray-400">AI is typing...</div>}
         <div ref={messagesEndRef} />
       </div>
-      <div className="border-t p-4 bg-white flex items-center fixed bottom-0 left-0 w-full z-10">
-        <input
+      <div className="border-t bg-white flex items-center fixed bottom-16 w-full z-10 p-4 gap-2">
+        <TextInput
           type="text"
           placeholder="Ask me anything..."
-          className="flex-1 border rounded-l-full px-4 py-2 focus:outline-none"
+          className="flex-1 focus:outline-none"
           value={inputText}
           onChange={e => setInputText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
@@ -138,9 +138,9 @@ const DialogueText = () => {
             />
           </svg>
         </Button>
-        <button className="bg-teal-700 text-white px-6 py-2 rounded-r-full ml-1" onClick={handleSend} disabled={loading}>
+        <Button className="bg-pink-700 text-white" onClick={handleSend} disabled={loading}>
           Send
-        </button>
+        </Button>
       </div>
     </div>
   );
